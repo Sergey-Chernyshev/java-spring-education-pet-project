@@ -39,3 +39,4 @@ out/
 
 # DOCKER
 /docker-compose.override.yml
+/logfile
