@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:14
+    container_name: my_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: mydatabase
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - my_network
+
+  app:
+    build: .
+    container_name: my_spring_app
+    restart: always
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://my_postgres:5432/mydatabase
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 1234
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_LIQUIBASE_CHANGELOG: classpath:/db/changelog/db.changelog-master.xml
+    ports:
+      - "8080:8080"
+    networks:
+      - my_network
+    depends_on:
+      - postgres
+    command: >
+      sh -c "java -jar /app.jar && ./mvnw liquibase:update"
+
+volumes:
+  postgres_data:
+
+networks:
+  my_network:
+    driver: bridge

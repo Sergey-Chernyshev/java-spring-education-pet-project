@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!-- Include V1 migration (Update height to 10) -->
+    <include file="classpath:/db/changelog/V1__update_height_to_10.sql"/>
+
+    <!-- Include V2 migration (Update height to 20) -->
+    <include file="classpath:/db/changelog/V2__update_height_to_20.sql"/>
+    <include file="classpath:/db/changelog/V3__add_mock_users.sql"/>
+</databaseChangeLog>
