@@ -1,1 +1,1 @@
-This is pet project for edication Java Spring
+This is pet project for education Java Spring
