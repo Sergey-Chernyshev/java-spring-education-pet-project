@@ -38,6 +38,54 @@ dependencies {
     implementation 'org.glassfish:jakarta.el:4.0.2'
 }
 
+// Укажите абсолютный путь к docker-compose в ваших задачах Gradle
+task composeUpDb(type: Exec) {
+    commandLine '/usr/local/bin/docker-compose', '-f', 'docker-compose-db.yml', 'up', '-d'
+}
 
+task composeDownDb(type: Exec) {
+    commandLine '/usr/local/bin/docker-compose', '-f', 'docker-compose-db.yml', 'down'
+}
 
+task composeUpApp(type: Exec) {
+    commandLine '/usr/local/bin/docker-compose', '-f', 'docker-compose-app.yml', 'up', '-d'
+}
 
+task composeDownApp(type: Exec) {
+    commandLine '/usr/local/bin/docker-compose', '-f', 'docker-compose-app.yml', 'down'
+}
+
+// Задача для проверки доступности базы данных
+task waitForDb {
+    doLast {
+        def maxRetries = 10
+        def retryInterval = 2000 // 2 seconds
+        def attempt = 1
+        while (attempt <= maxRetries) {
+            try {
+                def socket = new Socket('localhost', 5432)
+                socket.close()
+                println 'Database is available'
+                break
+            } catch (Exception e) {
+                println "Waiting for database... attempt $attempt"
+                sleep(retryInterval)
+                attempt++
+            }
+        }
+        if (attempt > maxRetries) {
+            throw new GradleException('Database is not available after multiple attempts')
+        }
+    }
+}
+
+// Задача для запуска базы данных и приложения
+task runDbAndApp(dependsOn: ['composeUpDb', 'waitForDb', 'bootRun']) {
+    group = 'application'
+    description = 'Starts the database container and then runs the Spring Boot application'
+}
+
+// Настройка задачи bootRun для использования профиля docker
+bootRun {
+    args = ['--spring.profiles.active=docker']
+}
